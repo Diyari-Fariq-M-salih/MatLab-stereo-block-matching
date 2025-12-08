@@ -1,0 +1,28 @@
+stereo-block-matching/
+│
+├── data/
+│   │ 
+│   ├── im2.ppm
+│   ├── im6.ppm
+│   ├── disp2.ppm
+│   └── disp6.ppm
+│
+├── src/
+│   ├── block_matching.m
+│   ├── disparity_evaluation.m
+│   ├── contrast_filter.m
+│   ├── hole_filling.m
+│   ├── lr_consistency.m
+│   ├── relaxation_optimization.m
+│   └── dynamic_programming.m
+│
+├── notes/   (optional)
+│   ├── exploration.mlx
+│   └── project_structure.txt
+├── results/
+│   ├── disparity_maps/
+│   ├── evaluation/
+│   └── visualizations/
+│
+├── README.md
+└── .gitignore
