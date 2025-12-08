@@ -1,7 +1,14 @@
-function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method)
-% BLOCK_MATCHING Compute disparity map using block matching.
+function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method, gradThreshold)
+% Inputs:
+%   I1, I2        : Grayscale input images (left and right)
+%   blockSize     : Square block size (odd number recommended)
+%   dispMax       : Maximum disparity to search (pixels)
+%   seuilContrast : Min contrast required to consider block (0–1)
+%   method        : 'SAD' | 'SSD' | 'NCC'
+%   gradThreshold : Minimum mean gradient magnitude for a block to be valid
 %
-% method : 'SAD' | 'SSD' | 'NCC'
+% Output:
+%   D : Disparity map (NaN for invalid points)
 
     I1 = double(I1);
     I2 = double(I2);
@@ -11,14 +18,34 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method)
 
     half = floor(blockSize/2);
 
+    % --- Precompute gradient magnitude (Sobel) on the left image ---
+    hx = fspecial('sobel');
+    hy = hx';
+
+    Gx = imfilter(I1, hx, 'replicate');
+    Gy = imfilter(I1, hy, 'replicate');
+    Gmag = sqrt(Gx.^2 + Gy.^2);
+
     for y = 1+half : h-half
         for x = 1+half : w-half
 
+            % Block in left image
             blockL = I1(y-half:y+half, x-half:x+half);
 
-            % Contrast filtering
-            contrast = (max(blockL(:)) - min(blockL(:))) / max(blockL(:));
-            if contrast < seuilContrast || isnan(contrast)
+            % ---- Contrast check ----
+            maxVal = max(blockL(:));
+            if maxVal == 0
+                continue
+            end
+            contrast = (maxVal - min(blockL(:))) / maxVal;
+            if contrast < seuilContrast
+                continue
+            end
+
+            % ---- Gradient check (Sobel) ----
+            gradBlock = Gmag(y-half:y+half, x-half:x+half);
+            meanGrad = mean(gradBlock(:));
+            if meanGrad < gradThreshold
                 continue
             end
 
@@ -29,7 +56,6 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method)
                 blockR = I2(y-half:y+half, xr-half:xr+half);
 
                 switch upper(method)
-
                     case 'SAD'
                         score = sum(abs(blockL(:) - blockR(:)));
 
@@ -42,12 +68,12 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method)
                         if den == 0
                             score = inf;
                         else
-                            % We invert NCC because block matching minimizes the score
-                            score = -num/den;
+                            % We minimize score, so invert NCC sign
+                            score = -num / den;
                         end
 
                     otherwise
-                        error("Unknown similarity measure");
+                        error("Unknown similarity measure: %s", method);
                 end
 
                 if score < bestScore
