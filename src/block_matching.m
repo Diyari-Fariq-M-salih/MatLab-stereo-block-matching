@@ -29,7 +29,7 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method, g
             bestX = NaN;
 
             % Search range
-            for xr = max(1+half, x-dispMax) : min(w-half, x+dispMax)
+            for xr = max(1+half, x-dispMax) : (x)
                 bR = I2(y-half:y+half, xr-half:xr+half);
 
                 switch upper(method)

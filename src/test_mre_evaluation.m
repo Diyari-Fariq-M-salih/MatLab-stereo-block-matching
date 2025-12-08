@@ -6,7 +6,7 @@ I2 = rgb2gray(imread('data/im6.ppm'));
 D_gt = double(imread('data/disp2.pgm')) / 8;
 
 % Generate disparity (example)
-DL = block_matching(I1, I2, 9, 20, 0.05, 'SAD', 10);
+DL = block_matching(I1, I2, 9, 20, 0.05, 'NCC', 10);
 DL_filled = fill_holes(DL);
 
 % Compute MRE

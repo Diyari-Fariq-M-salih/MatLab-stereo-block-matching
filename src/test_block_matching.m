@@ -1,18 +1,19 @@
-% inital test -------------------------------------------------
-I1 = rgb2gray(imread('data/im6.ppm'));
-I2 = rgb2gray(imread('data/im2.ppm'));
+% % inital test -------------------------------------------------
+% I1 = rgb2gray(imread('data/im6.ppm'));
+% I2 = rgb2gray(imread('data/im2.ppm'));
+% 
+% blockSize = 9;
+% dispMax = 20;
+% seuilContrast = 0.05;
+% 
+% D = block_matching(I1, I2, blockSize, dispMax, seuilContrast,"SAD",15);
+% 
+% figure;
+% imagesc(D); colormap jet; colorbar;
+% title("Raw Block Matching Disparity Map");
+% % inital test -------------------------------------------------
 
-blockSize = 9;
-dispMax = 20;
-seuilContrast = 0.05;
-
-D = block_matching(I1, I2, blockSize, dispMax, seuilContrast,"SAD",15);
-
-figure;
-imagesc(D); colormap jet; colorbar;
-title("Raw Block Matching Disparity Map");
-% inital test -------------------------------------------------
-
+% % different threshold values ------------------------------------
 % I1 = rgb2gray(imread('data/im2.ppm'));
 % I2 = rgb2gray(imread('data/im6.ppm'));
 % blockSize = 9;
@@ -21,15 +22,16 @@ title("Raw Block Matching Disparity Map");
 % 
 % figure;
 % for k = 1:length(thresholds)
-%     D = block_matching(I1, I2, blockSize, dispMax, thresholds(k));
+%     D = block_matching(I1, I2, blockSize, dispMax, thresholds(k),"SAD",15);
 % 
 %     subplot(2, 2, k);
 %     imagesc(D); colormap jet; colorbar;
 %     title(sprintf('Contrast Threshold = %.2f', thresholds(k)));
 % end
 % sgtitle("Effect of Contrast Threshold");
+% % different threshold values ------------------------------------
 
-% different threshold values --------------------------------------
+% % differet disparity sizes ------------------------------------------
 % I1 = rgb2gray(imread('data/im2.ppm'));
 % I2 = rgb2gray(imread('data/im6.ppm'));
 % blockSize = 9;
@@ -38,30 +40,31 @@ title("Raw Block Matching Disparity Map");
 % 
 % figure;
 % for k = 1:length(dispRanges)
-%     D = block_matching(I1, I2, blockSize, dispRanges(k), contrast);
+%     D = block_matching(I1, I2, blockSize, dispRanges(k), contrast,"SAD",15);
 % 
 %     subplot(2, 2, k);
 %     imagesc(D); colormap jet; colorbar;
 %     title(sprintf('dispMax = %d', dispRanges(k)));
 % end
 % sgtitle("Effect of Maximum Disparity Range");
-% different threshold values --------------------------------------
+% % differet disparity sizes ------------------------------------------
+
 % differet block sizes ------------------------------------------
-% I1 = rgb2gray(imread('data/im2.ppm'));
-% I2 = rgb2gray(imread('data/im6.ppm'));
-% 
-% dispMax = 20;
-% seuilContrast = 0.05;
-% 
-% blockSizes = [3, 7, 11, 15];
-% 
-% figure;
-% for k = 1:length(blockSizes)
-%     D = block_matching(I1, I2, blockSizes(k), dispMax, seuilContrast);
-% 
-%     subplot(2, 2, k);
-%     imagesc(D); colormap jet; colorbar;
-%     title(sprintf('Block Size = %d', blockSizes(k)));
-% end
-% sgtitle("Effect of Block Size on Disparity Map");
+I1 = rgb2gray(imread('data/im2.ppm'));
+I2 = rgb2gray(imread('data/im6.ppm'));
+
+dispMax = 20;
+seuilContrast = 0.05;
+
+blockSizes = [3, 7, 11, 15];
+
+figure;
+for k = 1:length(blockSizes)
+    D = block_matching(I1, I2, blockSizes(k), dispMax, seuilContrast,"SAD",15);
+
+    subplot(2, 2, k);
+    imagesc(D); colormap jet; colorbar;
+    title(sprintf('Block Size = %d', blockSizes(k)));
+end
+sgtitle("Effect of Block Size on Disparity Map");
 % differet block sizes ------------------------------------------

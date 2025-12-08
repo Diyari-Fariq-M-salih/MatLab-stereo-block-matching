@@ -3,10 +3,10 @@ I2 = rgb2gray(imread('data/im6.ppm'));
 
 D_gt = double(imread('data/disp2.pgm'))/8;
 
-blockSize=9; dispMax=20; c=0.05; g=10; lambda=4;
+blockSize=9; dispMax=20; c=0.05; g=10; lambda=5;
 
 % Compute disparities
-DL_BM = block_matching(I1, I2, blockSize, dispMax, c, "NCC", g);
+DL_BM = block_matching(I1, I2, blockSize, dispMax, c, "SAD", g);
 DL_BM = fill_holes(DL_BM);
 
 DL_relax = relaxation_optimization(I1, I2, dispMax, lambda, 10);
@@ -15,7 +15,7 @@ DL_DP = dynamic_programming(I1, I2, dispMax, lambda);
 
 % LR consistency (direction aware)
 DR_BM = block_matching(I2, I1, blockSize, dispMax, c, "SAD", g);
-DR_relax = relaxation_optimization(I2, I1, dispMax, lambda, 5);
+DR_relax = relaxation_optimization(I2, I1, dispMax, lambda, 10);
 DR_DP = dynamic_programming(I2, I1, dispMax, lambda);
 
 BM_LR = lr_consistency(DL_BM, DR_BM, 1);
