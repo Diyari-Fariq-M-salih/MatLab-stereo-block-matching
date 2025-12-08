@@ -1,15 +1,7 @@
-function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast)
-% BLOCK_MATCHING Compute disparity map using basic block matching (SAD).
+function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method)
+% BLOCK_MATCHING Compute disparity map using block matching.
 %
-% Inputs:
-%   I1, I2        : Grayscale input images (left and right)
-%   blockSize     : Size of the square block (odd number recommended)
-%   dispMax       : Maximum disparity to search (pixels)
-%   seuilContrast : Min contrast required to consider block (0–1)
-%
-% Output:
-%   D : Disparity map (NaN for invalid points), this later helps us with
-%   depth perception :D
+% method : 'SAD' | 'SSD' | 'NCC'
 
     I1 = double(I1);
     I2 = double(I2);
@@ -22,36 +14,51 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast)
     for y = 1+half : h-half
         for x = 1+half : w-half
 
-            % Extract block from left image
             blockL = I1(y-half:y+half, x-half:x+half);
 
-            % Contrast filter (avoid flat regions)
+            % Contrast filtering
             contrast = (max(blockL(:)) - min(blockL(:))) / max(blockL(:));
             if contrast < seuilContrast || isnan(contrast)
                 continue
             end
 
             bestScore = inf;
-            bestX2 = NaN;
+            bestX = NaN;
 
-            % Horizontal search in right image
             for xr = x : min(w-half, x + dispMax)
                 blockR = I2(y-half:y+half, xr-half:xr+half);
 
-                % SAD similarity
-                score = sum(abs(blockL(:) - blockR(:)));
+                switch upper(method)
+
+                    case 'SAD'
+                        score = sum(abs(blockL(:) - blockR(:)));
+
+                    case 'SSD'
+                        score = sum((blockL(:) - blockR(:)).^2);
+
+                    case 'NCC'
+                        num = sum(blockL(:).*blockR(:));
+                        den = sqrt(sum(blockL(:).^2) * sum(blockR(:).^2));
+                        if den == 0
+                            score = inf;
+                        else
+                            % We invert NCC because block matching minimizes the score
+                            score = -num/den;
+                        end
+
+                    otherwise
+                        error("Unknown similarity measure");
+                end
 
                 if score < bestScore
                     bestScore = score;
-                    bestX2 = xr;
+                    bestX = xr;
                 end
             end
 
-            % Store disparity
-            if ~isnan(bestX2)
-                D(y, x) = abs(x - bestX2);
+            if ~isnan(bestX)
+                D(y, x) = abs(x - bestX);
             end
-
         end
     end
 end
