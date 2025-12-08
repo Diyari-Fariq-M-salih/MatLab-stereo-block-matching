@@ -61,6 +61,13 @@ function D_relaxed = relaxation_optimization(I1, I2, dispMax, lambda, numIter)
     end
 
     D_relaxed = D;
+    % % At the end of relaxation_optimization:
+    % 
+    % % Ensuring LEFT-view disparity convention
+    % if nanmean(D_relaxed(:)) < 0
+    %     D_relaxed = -D_relaxed;
+    % end
+
 end
 
 function shifted = shiftImage(I, d)

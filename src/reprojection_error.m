@@ -1,38 +1,32 @@
 function err = reprojection_error(I1, I2, D)
-% REPROJECTION_ERROR Compute average photometric reprojection error.
-%
-% Inputs:
-%   I1 : left image
-%   I2 : right image
-%   D  : estimated disparity map
-%
-% Output:
-%   err : average reprojection error over valid pixels
+% REPROJECTION_ERROR  Checks both (x-d) and (x+d) reprojection.
 
     I1 = double(I1);
     I2 = double(I2);
-
     [h, w] = size(I1);
-    E = [];   % store valid errors
+
+    E1 = [];  % |I1 - I2(x-d)|
+    E2 = [];  % |I1 - I2(x+d)|
 
     for y = 1:h
         for x = 1:w
             d = D(y,x);
+            if isnan(d), continue; end
 
-            if isnan(d)
-                continue
+            % Case 1: shift right image left by d
+            xr1 = x - d;
+            if xr1 >= 1 && xr1 <= w
+                E1(end+1) = abs(I1(y,x) - I2(y,xr1));
             end
 
-            xr = round(x - d);
-
-            if xr < 1 || xr > w
-                continue
+            % Case 2: shift right image right by d
+            xr2 = x + d;
+            if xr2 >= 1 && xr2 <= w
+                E2(end+1) = abs(I1(y,x) - I2(y,xr2));
             end
-
-            photErr = abs(I1(y,x) - I2(y,xr));
-            E = [E; photErr];
         end
     end
 
-    err = mean(E);
+    % Choose direction with lowest reprojection error
+    err = min(mean(E1), mean(E2));
 end

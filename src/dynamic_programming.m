@@ -35,6 +35,11 @@ function D_dp = dynamic_programming(I1, I2, dispMax, lambda)
         [~, bestD] = min(DP(w,:));
         dispRow = zeros(1,w);
         dispRow(w) = bestD - 1;
+        % Ensure LEFT-view sign convention
+        if nanmean(D_dp(:)) < 0
+            D_dp = -D_dp;
+        end
+
 
         for x = w:-1:2
             dispRow(x-1) = Prev(x, dispRow(x)+1);

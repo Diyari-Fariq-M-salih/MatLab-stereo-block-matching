@@ -1,43 +1,31 @@
-function D_LR = lr_consistency(DL, DR, threshold)
-% LR_CONSISTENCY  Apply left-right consistency check.
-%
-% DL : disparity left → right
-% DR : disparity right → left
-% threshold : tolerance for mismatch (typically 1 pixel)
-%
-% Output:
-%   D_LR : disparity after LR consistency (invalid points = NaN)
+function D_out = lr_consistency(DL, DR, tol)
+% LR-CONSISTENCY that supports sign ambiguities.
 
     [h, w] = size(DL);
-    D_LR = DL;  % start from left disparity
+
+    % Ensure both disparities have same sign orientation
+    if nanmean(DL(:)) * nanmean(DR(:)) < 0
+        DR = -DR;
+    end
+
+    D_out = DL;
 
     for y = 1:h
         for x = 1:w
-            d = DL(y, x);
-
-            % skip invalid disparities
-            if isnan(d)
-                continue
-            end
+            d = DL(y,x);
+            if isnan(d), D_out(y,x)=NaN; continue; end
 
             xr = round(x - d);
 
-            % Is x-d inside the image?
             if xr < 1 || xr > w
-                D_LR(y, x) = NaN;
-                continue
+                D_out(y,x) = NaN;
+                continue;
             end
 
-            dR = DR(y, xr);
+            dR = DR(y,xr);
 
-            if isnan(dR)
-                D_LR(y, x) = NaN;
-                continue
-            end
-
-            % Check if consistent
-            if abs(d - dR) > threshold
-                D_LR(y, x) = NaN;
+            if isnan(dR) || abs(d-dR) > tol
+                D_out(y,x) = NaN;
             end
         end
     end

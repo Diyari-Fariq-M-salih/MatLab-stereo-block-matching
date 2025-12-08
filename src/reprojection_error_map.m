@@ -1,35 +1,34 @@
 function Emap = reprojection_error_map(I1, I2, D)
-% REPROJECTION_ERROR_MAP
-% Computes a pixel-wise reprojection error map for visualization.
-%
-% For each pixel (x,y):
-%   E(x,y) = | I1(x,y) - I2(x - d, y) |
-%
-% If disparity is invalid or out of bounds → error = 0
+% Computes per-pixel reprojection error for best disparity direction.
 
     I1 = double(I1);
     I2 = double(I2);
     [h, w] = size(I1);
 
-    Emap = zeros(h, w);
+    Emap = zeros(h,w);
 
     for y = 1:h
         for x = 1:w
-            d = D(y, x);
+            d = D(y,x);
+            if isnan(d), continue; end
 
-            if isnan(d)
-                Emap(y, x) = 0;
-                continue;
+            % Two options:
+            xr1 = x - d;
+            xr2 = x + d;
+
+            e = Inf;
+
+            if xr1 >= 1 && xr1 <= w
+                e = min(e, abs(I1(y,x) - I2(y,xr1)));
             end
 
-            xr = round(x - d);
-
-            if xr < 1 || xr > w
-                Emap(y, x) = 0;
-                continue;
+            if xr2 >= 1 && xr2 <= w
+                e = min(e, abs(I1(y,x) - I2(y,xr2)));
             end
 
-            Emap(y, x) = abs(I1(y, x) - I2(y, xr));
+            if isfinite(e)
+                Emap(y,x) = e;
+            end
         end
     end
 end
