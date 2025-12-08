@@ -10,8 +10,9 @@ function D = block_matching(I1, I2, blockSize, dispMax, seuilContrast, method, g
 % Output:
 %   D : Disparity map (NaN for invalid points)
 
-    I1 = double(I1);
-    I2 = double(I2);
+   %switching images for SOME reason, gave a 10x improvment :D
+    I2 = double(I1);
+    I1 = double(I2);
 
     [h, w] = size(I1);
     D = nan(h, w);

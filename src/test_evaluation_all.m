@@ -53,7 +53,7 @@ AE_DP = abs(D_DP - D_gt); AE_DP(isnan(AE_DP)) = 0;
 figure;
 tiledlayout(3,3);
 
-% ---- Row 1: Disparity Maps ----
+%  Row 1: Disparity Maps 
 nexttile; imagesc(D_BM); colormap jet; colorbar;
 title(sprintf("BM Disparity (MRE=%.3f)", MRE_BM));
 
@@ -63,7 +63,7 @@ title(sprintf("Relax Disparity (MRE=%.3f)", MRE_relax));
 nexttile; imagesc(D_DP); colormap jet; colorbar;
 title(sprintf("DP Disparity (MRE=%.3f)", MRE_DP));
 
-% ---- Row 2: Absolute Error ----
+%  Row 2: Absolute Error 
 nexttile; imagesc(AE_BM); colormap hot; colorbar;
 title("BM Abs Error");
 
@@ -73,8 +73,8 @@ title("Relax Abs Error");
 nexttile; imagesc(AE_DP); colormap hot; colorbar;
 title("DP Abs Error");
 
-% ---- Row 3: Reprojection Error ----
-% For visualization we display per-pixel differences
+%  Row 3: Reprojection Error 
+
 nexttile;
 RP_map_BM = reprojection_error_map(I1, I2, D_BM);
 imagesc(RP_map_BM); colormap hot; colorbar;
